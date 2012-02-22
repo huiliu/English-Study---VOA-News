@@ -5,6 +5,7 @@ import re
 from urllib import urlopen
 import sqlite3
 
+db_file = 'voa.db'
 
 def ProgramList(url):
 
@@ -121,11 +122,30 @@ def savefile(url, filename, flags=0):
     f.write(data)
     f.close()
 
-def Save2DB(item):
+def CreateTable(db, tname):
     """
     """
+    # --------- Create DataBase ----------
+    create_DB = "CREATE TABLE %s (title text, ftype varchar(3), publish date)" %(tname)
+    db.execute(create_DB)
 
+def Insert2DB(item, tname, db):
+    """
+    """
+    insert_DB = "INSERT INTO %s VALUES('%s', '%s', '%s')" % (tname, item[0], item[1], item[2])
+    print insert_DB
+    db.execute(insert_DB)
 
 if __name__ == '__main__':
+
+    conn = sqlite3.connect(db_file)
+    cur = conn.cursor()
+
     economics_report_url = 'http://www.51voa.com/Economics_Report_1.html'
-    ProgramList(economics_report_url)
+    #ProgramList(economics_report_url)
+    CreateTable(cur, "economics")
+    items = ['Websites Cut Service to Protest US Antipiracy Bills', 'mp3', '20120202']
+    Insert2DB(items, 'economics', cur)
+
+    conn.commit()
+    cur.close()
